@@ -1,0 +1,237 @@
+﻿@model TwitterClone_KevinDoyle.Models.DashboardModel
+@{
+    Layout = null;
+    if (Session["Id"] == null)
+    {
+        Response.Redirect("~/LogIn/Index");
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter clone</title>
+
+    <link rel='stylesheet prefetch' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+
+    <style>
+        body {
+            background-color: #F0FFFF;
+        }
+
+        a {
+            color: #60A6C1;
+        }
+
+        div.panel-heading {
+            padding-top: 15px;
+            padding-bottom: 0px;
+        }
+
+        .form-control-feedback {
+            line-height: 27px;
+        }
+
+        .panel-info {
+            border: 1px lightgrey solid;
+        }
+
+        .tweet-input {
+            padding: 0px 5px 0px 5px;
+        }
+
+        .user-tag {
+            padding: 0px 5px 0px 0px;
+            font-size: 12px;
+            color: darkgray;
+        }
+
+        @@media screen and (max-width: 991px) and (min-width:768px) {
+            h5 {
+                font-size: 10px;
+            }
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        function seconds_between(oldestDate, newestDate) {
+            // Convert both dates to milliseconds
+            var oldestDateMilliseconds = oldestDate.getTime();
+            var newestDateMilliseconds = newestDate.getTime();
+
+            // Calculate the difference in milliseconds
+            return Math.floor((oldestDateMilliseconds - newestDateMilliseconds) / 1000);
+        }
+
+        /*
+         * Calculates the months between two dates.
+         * Since Months are a bit tricky to count due to the difference in days,
+         *  this calculates them based on the day of the month to determine if it counts the month.
+         *  oldestDate = The
+         */
+        function months_between(oldestDate, newestDate) {
+            //Get years between first.
+            var differenceYears = oldestDate.getUTCFullYear() - newestDate.getUTCFullYear();
+            var monthsInAYear = 12;
+            // The months subtracted can give a negative number at times, which will offset the years
+            var differenceMonths = Math.floor(differenceYears * monthsInAYear + (oldestDate.getUTCMonth() - newestDate.getUTCMonth()))
+
+            //If oldest day is less than the newest day, then we skip it.
+            //I know that this isn't perfect, but it will take care of most cases.
+            if (oldestDate.getDate() < newestDate.getDate()) {
+                differenceMonths = differenceMonths - 1;
+            }
+            return differenceMonths;
+        }
+
+        /*
+         * Creates the string used for the "lasttweeted" header tags.
+         * This calculates, seconds (s), minutes (m), hours (h), days (d), weeks (w), months (M), and years (Y)
+         */
+        function since_last_tweeted(tweetedDate) {
+            var currentDate = new Date();
+
+            //We first calculate seconds, since that is the basis for the rest of our calculations
+            var secondsPast = seconds_between(currentDate, tweetedDate);
+
+            if (secondsPast < 60) {
+                return secondsPast + " s";
+            }
+
+            //seconds lead to minutes
+            var minutesPast = Math.floor(secondsPast / 60);
+            if (minutesPast < 60) {
+                return minutesPast + " m";
+            }
+
+            //minutes lead to hours
+            var hoursPast = Math.floor(minutesPast / 60);
+            if (hoursPast < 24) {
+                return hoursPast + " h";
+            }
+
+            //hours lead to days
+            var daysPast = Math.floor(hoursPast / 24);
+            if (daysPast < 7) {
+                return daysPast + " d";
+            }
+
+            //weeks get a little tricky due weeks in a month is't fully intuitive
+            //so, let's calculate months and years first
+            var monthsPast = months_between(currentDate, tweetedDate);
+            if (monthsPast > 0) {
+                if (monthsPast > 12) {
+                    var yearsPast = Math.floor(monthsPast / 12);
+                    return yearsPast + " Y";
+                }
+                return monthsPast + " M";
+            }
+
+            //finally, what is left will be weeks
+            var weeksPast = Math.floor(daysPast / 7);
+            return weeksPast + " w";
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12" style="position: relative; top: 0; right: 0; text-align:right;"><font size="1"><a href="@Url.Action("Logout", "LogIn")">Log Out</a></font></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <a href="#"><img class="img-responsive" alt="" src="https://placehold.it/800x500"></a>
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <h5>
+                                    <small>TWEETS</small>
+                                    <br />
+                                    <a href="#">@Model.Tweets.Count</a>
+                                </h5>
+                            </div>
+                            <div class="col-xs-4">
+                                <h5>
+                                    <small>FOLLOWING</small>
+                                    <br />
+                                    <a href="#">0</a>
+                                </h5>
+                            </div>
+                            <div class="col-xs-5">
+                                <h5>
+                                    <small>FOLLOWERS</small>
+                                    <br />
+                                    <a href="#">0</a>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="tweet-input row">
+                            <div class="form-group has-feedback">
+                                @using (Html.BeginForm("AddTweet", "Dashboard", FormMethod.Post))
+                                {
+                                    <input type="text" class="form-control" maxlength="140" placeholder="Compose new Tweet..." name="tweetText">
+                                    <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;" tabindex="-1" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <div class="tweets-header">
+                            <h3 class="text-center">Tweets</h3>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        @if (Model.Tweets.Count == 0)
+                        {
+                            <div class="media">You have no tweets</div>
+                        }
+                        @foreach (var tweet in Model.Tweets)
+                        {
+                            <hr />
+                            <div class="media">
+                                <a class="media-left" href="#fake">
+                                    <img alt="" class="media-object img-rounded" src="https://placehold.it/64x64">
+                                </a>
+                                <div class="media-body">
+
+                                    <b><font class="media-heading">@Model.FullName</font></b>
+
+                                    <font class="user-tag">@@@Model.UserName</font>
+
+                                    <p>@tweet.TweetText</p>
+                                    <h6 id="lastTweeted_@tweet.TweetId">
+                                        <script type="text/javascript">
+                                            var tweetTime = new Date("@tweet.TweetTime");
+                                            document.getElementById("lastTweeted_" + @tweet.TweetId).innerHTML = since_last_tweeted(tweetTime);
+                                        </script>
+                                    </h6>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <br>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,94 @@
+﻿@model TwitterClone_KevinDoyle.Models.User
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogIn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+    <link rel='stylesheet prefetch' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+    <style>
+        #login-div {
+            position: absolute;
+            left: 40%;
+            top: 40%;
+            border: 1px solid #ccc;
+            padding: 10px 10px;
+            background-color: white;
+        }
+
+        body {
+            background-color: #F0FFFF;
+        }
+
+        .field-validation-error {
+            color: red;
+        }
+
+        .form-control-feedback {
+            line-height: 27px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="text-center">Twitter Clone</h1>
+    <div id="login-div">
+
+        <div class="form-group has-feedback">
+            @using (Html.BeginForm("Authorize", "LogIn", FormMethod.Post))
+            {
+                <table>
+                    <tr>
+                        <td>
+                            @Html.LabelFor(model => model.UserName)
+                        </td>
+                        <td>
+                            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" } })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            @Html.ValidationMessageFor(model => model.UserName)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @Html.LabelFor(model => model.Password)
+                        </td>
+                        <td>
+                            @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            @Html.ValidationMessageFor(model => model.Password)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <label class="field-validation-error">
+                                @Html.DisplayFor(model => model.LogInErrorMessage)
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="submit" name="name" value="LogIn" class="btn btn-block" />
+                        </td>
+                    </tr>
+                </table>
+            }
+        </div>
+    </div>
+
+    <script src="~/Scripts/jquery-1.8.0.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>
